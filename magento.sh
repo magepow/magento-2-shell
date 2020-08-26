@@ -1,8 +1,8 @@
 #!/bin/bash
 # Not modify line below
 # Init environment
-# chmod +x /home/magento.sh
-# ln -s /home/magento.sh /usr/bin/magento
+# chmod +x /path_to_your_file/magento.sh
+# ln -s /path_to_your_file/magento.sh /usr/bin/magento
 # open terminal type magento 
 
 OWNER=`whoami`;
