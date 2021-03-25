@@ -171,6 +171,7 @@ function main ()
 		"Upgrade M2 version"
 		"find `pwd` -type d -exec chmod 755 {} \;  find . -type f -exec chmod 644 {} \; find . -name ".DS_Store" -delete;"
 		"sudo service elasticsearch restart"
+		"Test elasticsearch curl localhost:9200"
 	)
 
 	PS3="$prompt"
@@ -272,6 +273,10 @@ function main ()
 
 		19)
 			sudo service elasticsearch restart
+		;;
+
+		20)
+			curl localhost:9200
 		;;
 
 	    *) echo "Input wrong, please input number order on menu !";continue;;
