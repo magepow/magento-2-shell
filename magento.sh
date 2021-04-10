@@ -30,7 +30,7 @@ function isMagento()
 			echo "Your current locatlion: $(pwd)"
 			echo "#######################################################"
 		echo -e "${NC}"
-		SCRIPTNAME
+		$SCRIPTNAME
 	fi	
 }
 
