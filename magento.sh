@@ -172,6 +172,9 @@ function main ()
 		"find `pwd` -type d -exec chmod 755 {} \;  find . -type f -exec chmod 644 {} \; find . -name ".DS_Store" -delete;"
 		"sudo service elasticsearch restart"
 		"Test elasticsearch curl localhost:9200"
+		"systemctl restart varnish"
+		"redis-cli flushall"
+		"php -r 'opcache_reset();'"
 	)
 
 	PS3="$prompt"
@@ -275,10 +278,10 @@ function main ()
 			sudo service elasticsearch restart
 		;;
 
-		20)
-			curl localhost:9200
-		;;
-
+		20) curl localhost:9200 ;;
+		21) systemctl restart varnish ;;
+		22) redis-cli flushall ;;
+		23) php -r "opcache_reset();" ;;
 	    *) echo "Input wrong, please input number order on menu !";continue;;
 
 	    esac
