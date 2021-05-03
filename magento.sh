@@ -97,6 +97,29 @@ function upgradeMagento2x()
 	echo "Upgrade Done!."
 }
 
+function createDatabase()
+{
+	local dbname
+	if [ "$1" == "" ]; then
+		echo -n 'Enter database name: '
+		read dbname
+	else 
+		dbname=$1;
+	fi
+	checkDatabaseExist $dbname
+	if [ $? -eq 0 ]; then
+		echo "Database $dbname exist...."
+	else
+		mysql -u$USER -p -e "CREATE DATABASE IF NOT EXISTS $dbname"
+		echo "Create database $dbname ...."
+		if [ $? -eq 0 ]; then
+			echo "Success...."
+		else
+		    echo "FAIL...."
+		fi
+	fi
+}
+
 function defaultMode ()
 {
 	php bin/magento maintenance:enable
@@ -121,6 +144,7 @@ function defaultMode ()
 	php bin/magento maintenance:disable
 	echo 'Enable Default Mode done!';
 }
+
 function productionMode ()
 {
 	php bin/magento maintenance:enable
@@ -144,6 +168,83 @@ function productionMode ()
 	
 	php bin/magento maintenance:disable
 	echo 'Enable Production Mode done!';
+}
+
+function createDatabase()
+{
+	local sqlpassword
+	echo -n "Enter password user $USER : "
+	read sqlpassword
+
+	local name
+	echo -n 'Enter database name: '
+	read name
+	dbname="${USER}_${name}"
+
+	local dbexist=`mysqlshow -u$USER -p$sqlpassword $dbname| grep -v Wildcard | grep -o $dbname`;
+
+	if [ "$dbexist" == "$dbname" ]; then
+		echo "Database $dbname exist...."
+	else
+		mysql -u$USER -p$sqlpassword -e "CREATE DATABASE IF NOT EXISTS $dbname"
+		echo "Create database $dbname ...."
+		if [ $? -eq 0 ]; then
+			echo "Success...."
+		else
+		    echo "FAIL...."
+		fi
+	fi
+}
+
+function importDatabase() # use importDatabase name file.sql
+{
+	local sqlpassword
+	echo -n "Enter password user $USER : "
+	read sqlpassword
+
+	local dbname
+	if [ "$1" == "" ]; then
+		echo -n 'Enter database name: '
+		read dbname
+	else 
+		dbname=$1;
+	fi
+	if [ "$dbname" = "mysql" ] || [ "$dbname" = "infomation_schema" ] || [ "$dbname" = "performance_schema" ]; then
+		clear
+		echo "============================================================="
+		echo "You can't change database system !"
+		echo "-------------------------------------------------------------"
+		#sleep 3
+		$SCRIPTNAME
+	fi
+	local dbexist=`mysqlshow -u$USER -p$sqlpassword $dbname| grep -v Wildcard | grep -o $dbname`;
+	if [ "$dbexist" == "$dbname" ]; then
+
+		if [ "$2" == "" ]; then
+			echo -n 'Enter database name path file .sql Import: '
+			read sql
+		else 
+			sql=$2;
+		fi
+
+		if [ ! -f "$sql" ]; then 
+			echo "============================================================="
+			echo "No such file sql"
+			echo "-------------------------------------------------------------"
+			#sleep 3
+			$SCRIPTNAME
+		fi
+		echo "Import start...."
+		mysql -u$USER -p$sqlpassword $dbname <$sql
+		if [ $? -eq 0 ]; then
+			echo "Import database $dbname success...."
+		else
+			echo "Import database $dbname FAIL...."
+		fi
+
+	else
+		echo "Database $dbname not exist...."
+	fi
 }
 
 function main ()
@@ -175,6 +276,8 @@ function main ()
 		"systemctl restart varnish"
 		"redis-cli flushall"
 		"php -r 'opcache_reset();'"
+		"Create a database with prefix '${USER}_'"
+		"Import a database with user: '${USER}'"
 	)
 
 	PS3="$prompt"
@@ -282,6 +385,8 @@ function main ()
 		21) systemctl restart varnish ;;
 		22) redis-cli flushall ;;
 		23) php -r "opcache_reset();" ;;
+		24) createDatabase ;;
+		25) importDatabase ;;
 	    *) echo "Input wrong, please input number order on menu !";continue;;
 
 	    esac
