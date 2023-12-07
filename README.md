@@ -13,3 +13,8 @@ wget https://github.com/magepow/magento-2-shell/raw/master/magento.sh
 ln -s /home/magento.sh /usr/bin/magento
 chmod +x magento.sh
 ```
+## Usage
+Go to root magento and run command `magento` then choose option.
+```
+magento
+```
